@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>SmallClaw Skills Store</title>
+<link rel="icon" href="smallclaw-logo.png">
+<link rel="stylesheet" href="style.css?v=2.0">
+</head>
+<body>
+<div id="app">
+  <!-- Header -->
+  <header class="header">
+    <div class="header-left" id="menuToggle">
+      <img src="smallclaw-logo.png" alt="SmallClaw" class="header-logo">
+      <span class="header-title">SmallClaw <span>Skills</span></span>
+    </div>
+    <div class="header-search">
+      <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+      <input type="text" id="searchInput" placeholder="Search skills..." autocomplete="off">
+    </div>
+    <div class="header-right">
+      <button class="btn-profile" id="btnProfile" onclick="toggleProfile()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        <span>My Skills</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="main">
+    <!-- Sidebar Categories -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-title">Categories</div>
+      <div class="category-list" id="categoryList"></div>
+    </aside>
+
+    <!-- Content Area -->
+    <div class="content">
+      <!-- Stats Bar -->
+      <div class="stats-bar" id="statsBar"></div>
+
+      <!-- Featured Banner -->
+      <div class="featured-section" id="featuredSection">
+        <div class="section-header">
+          <h2>Featured</h2>
+        </div>
+        <div class="featured-scroll" id="featuredScroll"></div>
+      </div>
+
+      <!-- Skills List -->
+      <div class="skills-section">
+        <div class="section-header">
+          <h2 id="sectionTitle">All Skills</h2>
+          <div class="sort-controls">
+            <select id="sortSelect" onchange="loadSkills()">
+              <option value="downloads">Most Downloads</option>
+              <option value="rating">Highest Rated</option>
+              <option value="name">Name A-Z</option>
+            </select>
+          </div>
+        </div>
+        <div class="skills-grid" id="skillsGrid"></div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Skill Detail Modal -->
+  <div class="modal-overlay" id="modalOverlay" onclick="closeModal()">
+    <div class="modal-content" id="modalContent" onclick="event.stopPropagation()">
+      <button class="modal-close" onclick="closeModal()">&times;</button>
+      <div id="modalBody"></div>
+    </div>
+  </div>
+
+  <!-- Profile Panel -->
+  <div class="profile-overlay" id="profileOverlay" onclick="toggleProfile()">
+    <div class="profile-panel" id="profilePanel" onclick="event.stopPropagation()">
+      <div class="profile-header">
+        <h2>My Skills</h2>
+        <button class="modal-close" onclick="toggleProfile()" style="position:static">&times;</button>
+      </div>
+      <div class="profile-body">
+        <div class="installed-section">
+          <h3>Installed (<span id="installedCount">0</span>)</h3>
+          <div class="installed-grid" id="installedGrid"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <span>SmallClaw</span> &middot; Skills Store
+  </footer>
+</div>
+
+<script src="app.js?v=2.0"></script>
+</body>
+</html>
