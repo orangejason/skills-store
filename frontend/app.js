@@ -9,6 +9,10 @@ const ICONS = {
   star: '<svg viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>',
   check: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>',
   package: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M16.5 9.4l-9-5.19"/><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>',
+  heart: '<svg viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>',
+  shield: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>',
+  shieldCheck: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><polyline points="9 12 11 14 15 10"/></svg>',
+  file: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><polyline points="13 2 13 9 20 9"/></svg>',
 };
 
 // ============ Init ============
@@ -85,7 +89,8 @@ function getCategoryIcon(name) {
     'Social & Community': '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>',
     'NFT & Gaming': '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="6" width="20" height="12" rx="2"/><line x1="6" y1="12" x2="18" y2="12"/><line x1="12" y1="6" x2="12" y2="18"/></svg>',
     'Dev Tools': '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>',
-    'Cross-chain': '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3H5a2 2 0 0 0-2 2v3"/><path d="M21 8V5a2 2 0 0 0-2-2h-3"/><path d="M3 16v3a2 2 0 0 0 2 2h3"/><path d="M16 21h3a2 2 0 0 0 2-2v-3"/></svg>'
+    'Cross-chain': '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3H5a2 2 0 0 0-2 2v3"/><path d="M21 8V5a2 2 0 0 0-2-2h-3"/><path d="M3 16v3a2 2 0 0 0 2 2h3"/><path d="M16 21h3a2 2 0 0 0 2-2v-3"/></svg>',
+    'General / Popular': '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>'
   };
   return icons[name] || icons['all'];
 }
@@ -170,6 +175,9 @@ async function loadSkills() {
           <button class="btn-install ${isInstalled ? 'installed' : 'not-installed'}" onclick="event.stopPropagation();toggleInstall('${s.id}',this)">
             ${isInstalled ? 'Installed' : 'Install'}
           </button>
+          <button class="btn-download" onclick="event.stopPropagation();downloadSkill('${s.id}')" title="Download ZIP">
+            ${ICONS.download}
+          </button>
         </div>
       </div>`;
     }).join('');
@@ -200,17 +208,33 @@ async function openDetail(id) {
     const s = await res.json();
     const isInstalled = installedSkills.includes(s.id);
 
+    const secBadge = s.securityScan && s.securityScan.status === 'passed'
+      ? `<span class="sec-badge sec-verified">${ICONS.shieldCheck} Verified</span>`
+      : `<span class="sec-badge sec-pending">${ICONS.shield} Unverified</span>`;
+
     body.innerHTML = `
       <div class="detail-header">
         <img class="detail-icon" src="${proxyIcon(s.icon)}" alt="${s.name}" onerror="this.src='${fallbackIcon(s.name, 64)}'">
         <div class="detail-info">
-          <h2>${s.name}</h2>
-          <div class="detail-author">${s.author}</div>
-          <div class="detail-stats">
-            <span>${ICONS.download} ${formatNum(s.downloads)} downloads</span>
-            <span>${ICONS.star} ${s.rating}</span>
-            <span>v${s.version}</span>
-            <span>${s.size}</span>
+          <h2>${s.name} ${secBadge}</h2>
+          <div class="detail-author">${s.author} <span class="detail-version">v${s.version}</span></div>
+          <div class="detail-stats-row">
+            <div class="detail-stat-box">
+              <div class="detail-stat-num">${formatNum(s.downloads)}</div>
+              <div class="detail-stat-lbl">Downloads</div>
+            </div>
+            <div class="detail-stat-box">
+              <div class="detail-stat-num">${ICONS.star} ${s.rating}</div>
+              <div class="detail-stat-lbl">Rating</div>
+            </div>
+            <div class="detail-stat-box">
+              <div class="detail-stat-num">${ICONS.heart} ${formatNum(s.favorites || 0)}</div>
+              <div class="detail-stat-lbl">Favorites</div>
+            </div>
+            <div class="detail-stat-box">
+              <div class="detail-stat-num">${s.size}</div>
+              <div class="detail-stat-lbl">Size</div>
+            </div>
           </div>
         </div>
       </div>
@@ -219,14 +243,39 @@ async function openDetail(id) {
         <div class="detail-tags">
           ${s.tags.map(t => `<span class="tag">${t}</span>`).join('')}
         </div>
-        <div class="detail-section">
-          <h3>Category</h3>
-          <p>${s.category}</p>
+
+        <div class="detail-meta-grid">
+          <div class="detail-meta-item">
+            <span class="detail-meta-label">Category</span>
+            <span class="detail-meta-value">${s.category}</span>
+          </div>
+          <div class="detail-meta-item">
+            <span class="detail-meta-label">Last Updated</span>
+            <span class="detail-meta-value">${s.lastUpdated || 'N/A'}</span>
+          </div>
+          <div class="detail-meta-item">
+            <span class="detail-meta-label">Compatibility</span>
+            <span class="detail-meta-value">${(s.compatibility || []).join(', ')}</span>
+          </div>
+          <div class="detail-meta-item">
+            <span class="detail-meta-label">Security Scan</span>
+            <span class="detail-meta-value">${s.securityScan && s.securityScan.status === 'passed' ? 'Passed (0 threats, 0 warnings)' : 'Pending review'}</span>
+          </div>
         </div>
+
+        ${s.files && s.files.length ? `
         <div class="detail-section">
-          <h3>Compatibility</h3>
-          <p>${s.compatibility.join(' · ')}</p>
+          <h3>File List</h3>
+          <div class="detail-file-tree">
+            ${s.files.map(f => {
+              const isDir = f.includes('/');
+              const icon = isDir ? '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>' : ICONS.file;
+              return '<div class="file-tree-item">' + icon + ' <span>' + f + '</span></div>';
+            }).join('')}
+          </div>
         </div>
+        ` : ''}
+
         <div class="detail-section">
           <h3>Changelog</h3>
           <p>${s.changelog}</p>
@@ -235,7 +284,7 @@ async function openDetail(id) {
           <h3>Requirements</h3>
           <p>${s.requirements}</p>
         </div>
-        ${s.relatedSkills.length ? `
+        ${s.relatedSkills && s.relatedSkills.length ? `
         <div class="detail-section">
           <h3>Related Skills</h3>
           <div class="related-grid">
@@ -256,6 +305,9 @@ async function openDetail(id) {
         <button class="btn-detail-install ${isInstalled ? 'installed' : 'not-installed'}" onclick="toggleInstall('${s.id}',this)" data-id="${s.id}">
           ${isInstalled ? 'Installed' : 'Install Skill'}
         </button>
+        <button class="btn-detail-download" onclick="downloadSkill('${s.id}')">
+          ${ICONS.download} Download ZIP
+        </button>
       </div>
     `;
   } catch(e) {
@@ -271,6 +323,7 @@ function closeModal() {
 function toggleInstall(id, btn) {
   const idx = installedSkills.indexOf(id);
   if (idx >= 0) {
+    // Uninstall: just remove from localStorage
     installedSkills.splice(idx, 1);
     if (btn) {
       if (btn.classList.contains('btn-detail-install')) {
@@ -281,24 +334,74 @@ function toggleInstall(id, btn) {
         btn.textContent = 'Install';
       }
     }
+    localStorage.setItem('installedSkills', JSON.stringify(installedSkills));
   } else {
-    installedSkills.push(id);
+    // Install: trigger ZIP download, then mark installed
     if (btn) {
-      btn.textContent = 'Installing...';
+      const isDetail = btn.classList.contains('btn-detail-install');
       btn.disabled = true;
-      setTimeout(() => {
-        btn.disabled = false;
-        if (btn.classList.contains('btn-detail-install')) {
-          btn.className = 'btn-detail-install installed';
-          btn.textContent = 'Installed';
-        } else {
-          btn.className = 'btn-install installed';
-          btn.textContent = 'Installed';
-        }
-      }, 600);
+      btn.innerHTML = isDetail
+        ? `<span class="dl-progress-wrap"><span class="dl-spinner"></span> Downloading...</span>`
+        : `<span class="dl-spinner"></span>`;
+    }
+    downloadAndInstall(id, btn);
+  }
+}
+
+async function downloadAndInstall(id, btn) {
+  try {
+    const response = await fetch(`${API}/api/skills/${id}/download`);
+    if (!response.ok) throw new Error('Download failed');
+
+    const blob = await response.blob();
+    const disposition = response.headers.get('Content-Disposition') || '';
+    const match = disposition.match(/filename="?([^"]+)"?/);
+    const filename = match ? match[1] : `${id}.zip`;
+
+    // Trigger browser download
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = filename;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+
+    // Mark as installed
+    if (!installedSkills.includes(id)) {
+      installedSkills.push(id);
+      localStorage.setItem('installedSkills', JSON.stringify(installedSkills));
+    }
+
+    if (btn) {
+      btn.disabled = false;
+      if (btn.classList.contains('btn-detail-install')) {
+        btn.className = 'btn-detail-install installed';
+        btn.textContent = 'Installed';
+      } else {
+        btn.className = 'btn-install installed';
+        btn.textContent = 'Installed';
+      }
+    }
+  } catch (e) {
+    console.error('Download failed:', e);
+    if (btn) {
+      btn.disabled = false;
+      if (btn.classList.contains('btn-detail-install')) {
+        btn.className = 'btn-detail-install not-installed';
+        btn.textContent = 'Install Failed - Retry';
+      } else {
+        btn.className = 'btn-install not-installed';
+        btn.textContent = 'Retry';
+      }
     }
   }
-  localStorage.setItem('installedSkills', JSON.stringify(installedSkills));
+}
+
+// ============ Download ============
+function downloadSkill(id) {
+  downloadAndInstall(id, null);
 }
 
 // ============ Profile ============

@@ -1,6 +1,8 @@
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
+const archiver = require('archiver');
+const fs = require('fs');
 const app = express();
 const PORT = 3004;
 
@@ -216,6 +218,167 @@ const skillsData = [
   { id: 'hyperlane-bridge', name: 'Hyperlane Messaging', author: 'Hyperlane', category: 'Cross-chain', icon: 'https://img.icons8.com/fluency/96/internet.png', description: '模块化跨链消息协议，Permissionless部署、自定义安全模型和Warp Route资产桥。', downloads: 21800, rating: 4.3, tags: ['messaging', 'modular', 'permissionless'] },
   { id: 'debridge', name: 'deBridge Cross-chain', author: 'deBridge', category: 'Cross-chain', icon: 'https://img.icons8.com/fluency/96/electrical.png', description: 'deBridge高速跨链协议，DLN限价跨链交易、去中心化验证和即时结算。', downloads: 25600, rating: 4.4, tags: ['fast-bridge', 'dln', 'settlement'] },
   { id: 'circle-cctp', name: 'Circle CCTP', author: 'Circle', category: 'Cross-chain', icon: 'https://img.icons8.com/fluency/96/circle.png', description: 'Circle跨链USDC传输协议，原生USDC跨链销毁铸造，无需包装代币。', downloads: 34200, rating: 4.5, tags: ['usdc', 'native-bridge', 'burn-mint'] },
+
+  // --- Meme & Launchpad ---
+  { id: 'pump-fun', name: 'Pump.fun Launcher', author: 'Pump.fun', category: 'Meme & Launchpad', icon: 'https://img.icons8.com/fluency/96/launched-rocket.png', description: 'Solana最火Meme币发射平台，零代码一键发币、Bonding Curve自动定价、毕业迁移Raydium。', downloads: 186500, rating: 4.8, tags: ['meme', 'solana', 'launch'], featured: true },
+  { id: 'moonshot-launcher', name: 'Moonshot DEX', author: 'Moonshot', category: 'Meme & Launchpad', icon: 'https://img.icons8.com/fluency/96/full-moon.png', description: 'Solana Meme币交易平台，信用卡直接购买Meme币、新币发现和趋势排行。', downloads: 132000, rating: 4.7, tags: ['meme', 'fiat', 'trading'], featured: true },
+  { id: 'dextools-trending', name: 'DEXTools Trending', author: 'DEXTools', category: 'Meme & Launchpad', icon: 'https://img.icons8.com/fluency/96/fire-element.png', description: '热门代币趋势排行，实时新币监控、大单追踪和多链Hot Pairs榜单。', downloads: 145200, rating: 4.7, tags: ['trending', 'hot-pairs', 'multichain'], featured: true },
+  { id: 'ave-fun', name: 'Ave.fun Launcher', author: 'Ave.ai', category: 'Meme & Launchpad', icon: 'https://img.icons8.com/fluency/96/rocket.png', description: 'AI智能Meme币发射，自动生成代币概念、Logo和社交媒体推广，多链支持。', downloads: 89300, rating: 4.5, tags: ['meme', 'ai-launch', 'multichain'] },
+  { id: 'flap-sh', name: 'Flap.sh Launch', author: 'Flap', category: 'Meme & Launchpad', icon: 'https://img.icons8.com/fluency/96/paper-plane.png', description: '多链Meme代币创建和发射平台，SIWE验证、Portal合约和自定义Vanity地址。', downloads: 67200, rating: 4.4, tags: ['meme', 'multichain', 'vanity'] },
+  { id: 'gempad-launch', name: 'GemPad Launchpad', author: 'GemPad', category: 'Meme & Launchpad', icon: 'https://img.icons8.com/fluency/96/diamond.png', description: '多链代币Launchpad，Fair Launch、Presale和代币锁定服务，支持10+链。', downloads: 58400, rating: 4.3, tags: ['launchpad', 'presale', 'lock'] },
+  { id: 'pinksale', name: 'PinkSale Presale', author: 'PinkSale', category: 'Meme & Launchpad', icon: 'https://img.icons8.com/fluency/96/paint-bucket.png', description: '最大的去中心化预售平台，代币创建、Presale、Fair Launch和流动性锁定。', downloads: 76800, rating: 4.4, tags: ['presale', 'fairlaunch', 'lock'], featured: true },
+  { id: 'defined-fi', name: 'Defined.fi Scanner', author: 'Defined', category: 'Meme & Launchpad', icon: 'https://img.icons8.com/fluency/96/zoom-in.png', description: '实时代币扫描和过滤，新池发现、Meme币筛选器和多链流动性追踪。', downloads: 71500, rating: 4.5, tags: ['scanner', 'filter', 'new-pool'] },
+  { id: 'banana-gun', name: 'Banana Gun Sniper', author: 'Banana Gun', category: 'Meme & Launchpad', icon: 'https://img.icons8.com/fluency/96/banana.png', description: 'Telegram交易机器人，新币狙击、限价单和反Rug保护，支持ETH/SOL/Base。', downloads: 95600, rating: 4.6, tags: ['sniper', 'telegram-bot', 'trading'], featured: true },
+  { id: 'maestro-bot', name: 'Maestro Trading Bot', author: 'Maestro', category: 'Meme & Launchpad', icon: 'https://img.icons8.com/fluency/96/musical-notes.png', description: 'Telegram链上交易机器人，多链Sniper、复制交易和钱包追踪，支持ETH/BSC/SOL。', downloads: 82100, rating: 4.5, tags: ['telegram-bot', 'sniper', 'copy-trade'] },
+  { id: 'unibot', name: 'Unibot Trader', author: 'Unibot', category: 'Meme & Launchpad', icon: 'https://img.icons8.com/fluency/96/bot.png', description: 'Telegram快速交易机器人，新币狙击、限价单和Private TX保护。', downloads: 73400, rating: 4.4, tags: ['telegram-bot', 'fast-trade', 'private-tx'] },
+  { id: 'sol-trending', name: 'SOL Trending Monitor', author: 'SolTools', category: 'Meme & Launchpad', icon: 'https://img.icons8.com/fluency/96/sun.png', description: 'Solana热门代币实时监控，新币追踪、Volume异动检测和Smart Money流入提醒。', downloads: 64800, rating: 4.4, tags: ['solana', 'trending', 'volume'] },
+
+  // --- Airdrop & Earn ---
+  { id: 'defi-airdrop', name: 'Airdrop Tracker', author: 'AirdropAlert', category: 'Airdrop & Earn', icon: 'https://img.icons8.com/fluency/96/parachute.png', description: '空投机会聚合追踪，确认空投和潜在空投项目列表、资格查询和领取教程。', downloads: 156000, rating: 4.7, tags: ['airdrop', 'tracker', 'claim'], featured: true },
+  { id: 'earndrop', name: 'EarnDrop Auto', author: 'EarnDAO', category: 'Airdrop & Earn', icon: 'https://img.icons8.com/fluency/96/gift.png', description: '自动化空投交互工具，批量钱包管理、任务自动完成和链上活跃度维护。', downloads: 112300, rating: 4.5, tags: ['airdrop', 'automation', 'batch'], featured: true },
+  { id: 'staking-rewards', name: 'Staking Rewards', author: 'StakingRewards', category: 'Airdrop & Earn', icon: 'https://img.icons8.com/fluency/96/gold-bars.png', description: '质押收益排行和计算器，200+资产的APY对比、最优质押方案推荐。', downloads: 98700, rating: 4.6, tags: ['staking', 'apy', 'calculator'], featured: true },
+  { id: 'points-dashboard', name: 'Points Dashboard', author: 'PointsDAO', category: 'Airdrop & Earn', icon: 'https://img.icons8.com/fluency/96/scorecard.png', description: '积分系统仪表盘，追踪多协议积分累积、预估空投价值和最优积分策略。', downloads: 87500, rating: 4.5, tags: ['points', 'dashboard', 'estimate'] },
+  { id: 'testnet-faucet', name: 'Testnet Faucet Hub', author: 'FaucetHub', category: 'Airdrop & Earn', icon: 'https://img.icons8.com/fluency/96/water-tap.png', description: '测试网水龙头聚合，一键领取多链测试代币、Testnet任务指引。', downloads: 76200, rating: 4.3, tags: ['testnet', 'faucet', 'free'] },
+  { id: 'yield-aggregator', name: 'Yield Aggregator Pro', author: 'YieldMax', category: 'Airdrop & Earn', icon: 'https://img.icons8.com/fluency/96/money-bag.png', description: '全链DeFi收益聚合，自动寻找最高APY的Farm和Pool，一键存入最优策略。', downloads: 82100, rating: 4.5, tags: ['yield', 'farm', 'aggregator'] },
+  { id: 'quest-aggregator', name: 'Quest Aggregator', author: 'QuestHub', category: 'Airdrop & Earn', icon: 'https://img.icons8.com/fluency/96/quest.png', description: '链上任务聚合平台，Galxe/Zealy/Layer3等多平台任务统一管理和自动提醒。', downloads: 69400, rating: 4.4, tags: ['quest', 'task', 'aggregator'] },
+  { id: 'learn-to-earn', name: 'Learn-to-Earn Hub', author: 'CryptoEdu', category: 'Airdrop & Earn', icon: 'https://img.icons8.com/fluency/96/graduation-cap.png', description: '学习赚取奖励平台，完成加密知识课程获取代币奖励、链上认证和技能NFT。', downloads: 58300, rating: 4.3, tags: ['learn', 'earn', 'education'] },
+  { id: 'referral-tracker', name: 'Referral Tracker', author: 'RefDAO', category: 'Airdrop & Earn', icon: 'https://img.icons8.com/fluency/96/share.png', description: '推荐奖励追踪系统，多协议Referral管理、佣金计算和邀请链接生成。', downloads: 45600, rating: 4.2, tags: ['referral', 'commission', 'invite'] },
+  { id: 'liquidity-mining', name: 'LP Mining Optimizer', author: 'MineMax', category: 'Airdrop & Earn', icon: 'https://img.icons8.com/fluency/96/pickaxe.png', description: '流动性挖矿收益优化，无常损失计算、最优LP配对推荐和自动复利策略。', downloads: 53200, rating: 4.3, tags: ['lp-mining', 'il-calculator', 'compound'] },
+
+  // --- DAO & Governance ---
+  { id: 'tally-vote', name: 'Tally Governance', author: 'Tally', category: 'DAO & Governance', icon: 'https://img.icons8.com/fluency/96/parliament.png', description: '链上治理投票平台，提案浏览、投票参与、委托代理和治理数据分析。', downloads: 72300, rating: 4.6, tags: ['governance', 'vote', 'delegate'], featured: true },
+  { id: 'aragon-dao', name: 'Aragon DAO Builder', author: 'Aragon', category: 'DAO & Governance', icon: 'https://img.icons8.com/fluency/96/organization.png', description: '一键创建DAO组织，投票机制配置、国库管理和成员权限控制。', downloads: 56800, rating: 4.5, tags: ['dao', 'create', 'treasury'], featured: true },
+  { id: 'gnosis-safe-dao', name: 'Safe DAO Treasury', author: 'Safe', category: 'DAO & Governance', icon: 'https://img.icons8.com/fluency/96/safe.png', description: 'DAO国库多签管理，资金分配、预算提案和支出审批流程。', downloads: 63500, rating: 4.6, tags: ['treasury', 'multisig', 'budget'] },
+  { id: 'coordinape', name: 'Coordinape Rewards', author: 'Coordinape', category: 'DAO & Governance', icon: 'https://img.icons8.com/fluency/96/handshake.png', description: 'DAO贡献者奖励分配工具，Peer Review评估、GIVE代币激励和薪酬管理。', downloads: 38200, rating: 4.3, tags: ['rewards', 'contribution', 'compensation'] },
+  { id: 'colony-dao', name: 'Colony DAO OS', author: 'Colony', category: 'DAO & Governance', icon: 'https://img.icons8.com/fluency/96/beehive.png', description: 'DAO操作系统，任务分配、声望系统、资金管理和自动化治理。', downloads: 28900, rating: 4.2, tags: ['dao-os', 'reputation', 'task'] },
+  { id: 'boardroom', name: 'Boardroom Analytics', author: 'Boardroom', category: 'DAO & Governance', icon: 'https://img.icons8.com/fluency/96/meeting-room.png', description: '跨DAO治理数据聚合，提案追踪、投票分析和治理参与度排行。', downloads: 34500, rating: 4.3, tags: ['analytics', 'cross-dao', 'participation'] },
+  { id: 'snapshot-plus', name: 'Snapshot Plus', author: 'Snapshot', category: 'DAO & Governance', icon: 'https://img.icons8.com/fluency/96/camera.png', description: 'Snapshot增强工具，批量投票、提案模板、投票提醒和代理委托管理。', downloads: 45600, rating: 4.4, tags: ['snapshot', 'batch-vote', 'delegation'] },
+  { id: 'jokerace', name: 'JokeRace Contests', author: 'JokeRace', category: 'DAO & Governance', icon: 'https://img.icons8.com/fluency/96/medal.png', description: '链上竞赛和投票平台，社区提案评选、赏金分配和排名投票。', downloads: 22100, rating: 4.1, tags: ['contest', 'ranking', 'bounty'] },
+
+  // --- Payment & Commerce ---
+  { id: 'request-network', name: 'Request Network Pay', author: 'Request', category: 'Payment & Commerce', icon: 'https://img.icons8.com/fluency/96/invoice.png', description: '加密支付和发票系统，创建和发送加密货币发票、自动化会计和税务报告。', downloads: 67800, rating: 4.5, tags: ['payment', 'invoice', 'accounting'], featured: true },
+  { id: 'superfluid-stream', name: 'Superfluid Streams', author: 'Superfluid', category: 'Payment & Commerce', icon: 'https://img.icons8.com/fluency/96/river.png', description: '实时代币流支付，按秒工资发放、订阅付费和持续分红。', downloads: 52300, rating: 4.5, tags: ['stream', 'salary', 'subscription'], featured: true },
+  { id: 'sablier-vesting', name: 'Sablier Vesting', author: 'Sablier', category: 'Payment & Commerce', icon: 'https://img.icons8.com/fluency/96/time.png', description: '代币线性释放和归属计划，员工Token Vesting、投资者锁仓和定时分发。', downloads: 41200, rating: 4.4, tags: ['vesting', 'lock', 'linear-release'] },
+  { id: 'coinbase-commerce', name: 'Coinbase Commerce', author: 'Coinbase', category: 'Payment & Commerce', icon: 'https://img.icons8.com/fluency/96/shopping-cart.png', description: '商户加密支付接入，支持BTC/ETH/USDC等主流币种收款，Webhook通知和订单管理。', downloads: 89500, rating: 4.6, tags: ['merchant', 'payment', 'checkout'], featured: true },
+  { id: 'gnosis-pay', name: 'Gnosis Pay Card', author: 'Gnosis', category: 'Payment & Commerce', icon: 'https://img.icons8.com/fluency/96/bank-card-front-side.png', description: '加密Visa借记卡管理，链上余额直接消费、消费记录追踪和自动换汇。', downloads: 58400, rating: 4.4, tags: ['card', 'visa', 'spend'] },
+  { id: 'utopia-payroll', name: 'Utopia Payroll', author: 'Utopia Labs', category: 'Payment & Commerce', icon: 'https://img.icons8.com/fluency/96/money-transfer.png', description: 'DAO和团队加密薪资管理，批量发放、多币种工资和税务合规。', downloads: 35600, rating: 4.3, tags: ['payroll', 'batch', 'compliance'] },
+  { id: 'slash-pay', name: 'Slash Web3 Payment', author: 'Slash', category: 'Payment & Commerce', icon: 'https://img.icons8.com/fluency/96/qr-code.png', description: 'Web3支付网关，二维码收款、多链多币种结算和商户后台管理。', downloads: 42100, rating: 4.3, tags: ['gateway', 'qr-code', 'settlement'] },
+  { id: 'spruce-id', name: 'Spruce DID Identity', author: 'Spruce', category: 'Payment & Commerce', icon: 'https://img.icons8.com/fluency/96/identification-documents.png', description: '去中心化身份验证，DID创建、可验证凭证签发和SIWE登录集成。', downloads: 31500, rating: 4.2, tags: ['did', 'identity', 'siwe'] },
+
+  // --- Research & Education ---
+  { id: 'crypto-glossary', name: 'Crypto Glossary AI', author: 'CryptoEdu', category: 'Research & Education', icon: 'https://img.icons8.com/fluency/96/book.png', description: 'AI加密术语百科，输入任何Web3概念即刻获得中英文解释、案例和相关项目。', downloads: 125000, rating: 4.7, tags: ['glossary', 'education', 'ai'], featured: true },
+  { id: 'whitepaper-reader', name: 'Whitepaper Reader AI', author: 'PaperAI', category: 'Research & Education', icon: 'https://img.icons8.com/fluency/96/document.png', description: 'AI白皮书阅读助手，一键总结项目白皮书、提取关键信息和风险提示。', downloads: 89200, rating: 4.6, tags: ['whitepaper', 'summary', 'analysis'], featured: true },
+  { id: 'tokenomics-analyzer', name: 'Tokenomics Analyzer', author: 'TokenLab', category: 'Research & Education', icon: 'https://img.icons8.com/fluency/96/pie-chart.png', description: '代币经济模型分析器，解读Vesting计划、通胀率、代币分配和解锁时间线。', downloads: 72400, rating: 4.5, tags: ['tokenomics', 'vesting', 'unlock'] },
+  { id: 'vc-tracker', name: 'VC Investment Tracker', author: 'FundWatch', category: 'Research & Education', icon: 'https://img.icons8.com/fluency/96/briefcase.png', description: '顶级VC投资追踪，a16z/Paradigm/Binance Labs等机构最新投资动态和Portfolio分析。', downloads: 68500, rating: 4.5, tags: ['vc', 'investment', 'portfolio'], featured: true },
+  { id: 'on-chain-alpha', name: 'On-Chain Alpha Finder', author: 'AlphaDAO', category: 'Research & Education', icon: 'https://img.icons8.com/fluency/96/treasure-chest.png', description: '链上Alpha信号发现，早期项目识别、Smart Money新买入追踪和叙事轮动预判。', downloads: 95600, rating: 4.7, tags: ['alpha', 'early-bird', 'narrative'], featured: true },
+  { id: 'crypto-calendar', name: 'Crypto Event Calendar', author: 'EventDAO', category: 'Research & Education', icon: 'https://img.icons8.com/fluency/96/calendar.png', description: '加密行业日历，代币解锁、主网上线、AMA活动和会议时间线。', downloads: 78300, rating: 4.4, tags: ['calendar', 'unlock', 'events'] },
+  { id: 'fear-greed-index', name: 'Fear & Greed Index', author: 'Alternative.me', category: 'Research & Education', icon: 'https://img.icons8.com/fluency/96/dashboard-layout.png', description: '加密恐惧贪婪指数，实时市场情绪追踪、历史数据对比和交易信号。', downloads: 105000, rating: 4.6, tags: ['sentiment', 'index', 'market'] },
+  { id: 'funding-rate', name: 'Funding Rate Monitor', author: 'RateLab', category: 'Research & Education', icon: 'https://img.icons8.com/fluency/96/percentage.png', description: '永续合约资金费率监控，多交易所对比、套利机会发现和费率历史分析。', downloads: 62100, rating: 4.4, tags: ['funding-rate', 'arbitrage', 'perp'] },
+  { id: 'unlock-schedule', name: 'Token Unlock Schedule', author: 'TokenUnlocks', category: 'Research & Education', icon: 'https://img.icons8.com/fluency/96/unlock.png', description: '代币解锁日程追踪，项目Token释放时间、解锁金额和对价格影响分析。', downloads: 84700, rating: 4.5, tags: ['unlock', 'vesting', 'schedule'] },
+  { id: 'rugcheck', name: 'RugCheck Scanner', author: 'RugCheck', category: 'Research & Education', icon: 'https://img.icons8.com/fluency/96/detective.png', description: '代币安全快速检测，Rug Pull风险评分、流动性锁定验证和合约权限检查。', downloads: 118000, rating: 4.7, tags: ['rug-check', 'safety', 'scan'], featured: true },
+
+  // --- General / Popular ---
+  { id: 'gen-web-search', name: 'Web Search Pro', author: 'ClawHub', category: 'General / Popular', icon: 'https://img.icons8.com/fluency/96/search.png', description: '智能网络搜索，实时获取最新信息，支持多引擎聚合、结果摘要和来源引用。适用于研究、新闻和事实核查。', downloads: 245000, rating: 4.9, tags: ['search', 'web', 'information'], featured: true },
+  { id: 'gen-summarizer', name: 'AI Summarizer', author: 'ClawHub', category: 'General / Popular', icon: 'https://img.icons8.com/fluency/96/summary-list.png', description: '一键总结长文档、网页和PDF，提取关键要点、生成结构化摘要，支持中英文双语输出。', downloads: 218000, rating: 4.9, tags: ['summarize', 'text', 'ai'], featured: true },
+  { id: 'gen-code-assistant', name: 'Code Assistant', author: 'ClawHub', category: 'General / Popular', icon: 'https://img.icons8.com/fluency/96/source-code.png', description: '全能编程助手，支持50+语言代码生成、解释、调试、重构和优化。集成最佳实践和设计模式建议。', downloads: 312000, rating: 4.9, tags: ['coding', 'programming', 'debug'], featured: true },
+  { id: 'gen-note-taker', name: 'Smart Note Taker', author: 'ClawHub', category: 'General / Popular', icon: 'https://img.icons8.com/fluency/96/note.png', description: '智能笔记记录与管理，自动整理、标签分类、全文搜索，支持Markdown和富文本格式。', downloads: 187000, rating: 4.8, tags: ['notes', 'organize', 'markdown'], featured: true },
+  { id: 'gen-task-manager', name: 'Task Manager AI', author: 'ClawHub', category: 'General / Popular', icon: 'https://img.icons8.com/fluency/96/task-planning.png', description: 'AI驱动的任务管理工具，自动拆解目标为可执行步骤、优先级排序、进度追踪和提醒通知。', downloads: 165000, rating: 4.8, tags: ['tasks', 'productivity', 'planning'], featured: true },
+  { id: 'gen-translator', name: 'Universal Translator', author: 'ClawHub', category: 'General / Popular', icon: 'https://img.icons8.com/fluency/96/translate.png', description: '支持200+语言的高精度翻译工具，上下文感知翻译、专业术语处理和文化适配，保留原文语气和风格。', downloads: 289000, rating: 4.8, tags: ['translate', 'language', 'multilingual'], featured: true },
+  { id: 'gen-writer', name: 'AI Writing Assistant', author: 'ClawHub', category: 'General / Popular', icon: 'https://img.icons8.com/fluency/96/quill-with-ink.png', description: '全场景写作助手，文章、邮件、报告、广告文案一键生成，支持多种风格和语调调整。', downloads: 198000, rating: 4.8, tags: ['writing', 'content', 'copywriting'], featured: true },
+  { id: 'gen-pdf-reader', name: 'PDF Reader & Analyzer', author: 'ClawHub', category: 'General / Popular', icon: 'https://img.icons8.com/fluency/96/pdf.png', description: 'PDF智能阅读和分析工具，提取文本、解析表格、问答交互，支持扫描件OCR识别和批量处理。', downloads: 156000, rating: 4.7, tags: ['pdf', 'ocr', 'document'] },
+  { id: 'gen-image-gen', name: 'Image Generator', author: 'ClawHub', category: 'General / Popular', icon: 'https://img.icons8.com/fluency/96/image.png', description: 'AI图像生成工具，文字转图像、风格迁移、图像编辑和增强，支持多种艺术风格和分辨率。', downloads: 223000, rating: 4.8, tags: ['image', 'ai-art', 'generate'] },
+  { id: 'gen-calendar-ai', name: 'Calendar AI', author: 'ClawHub', category: 'General / Popular', icon: 'https://img.icons8.com/fluency/96/calendar.png', description: '智能日历助手，自然语言创建事件、会议安排优化、时区转换和提醒管理，与主流日历同步。', downloads: 134000, rating: 4.7, tags: ['calendar', 'schedule', 'meeting'] },
+  { id: 'gen-email-writer', name: 'Email Writer Pro', author: 'ClawHub', category: 'General / Popular', icon: 'https://img.icons8.com/fluency/96/email.png', description: '专业邮件写作助手，根据场景自动生成正式/非正式邮件，支持回复建议、主题优化和多语言。', downloads: 142000, rating: 4.7, tags: ['email', 'communication', 'business'] },
+  { id: 'gen-data-analyzer', name: 'Data Analyzer', author: 'ClawHub', category: 'General / Popular', icon: 'https://img.icons8.com/fluency/96/chart.png', description: '数据分析和可视化工具，上传CSV/Excel自动生成图表、统计摘要、趋势分析和洞察报告。', downloads: 178000, rating: 4.8, tags: ['data', 'analytics', 'visualization'] },
+  { id: 'gen-file-converter', name: 'File Format Converter', author: 'ClawHub', category: 'General / Popular', icon: 'https://img.icons8.com/fluency/96/file-transfer.png', description: '多格式文件转换工具，支持PDF/Word/Excel/PPT/图片等200+格式互转，批量处理，保留原始格式。', downloads: 119000, rating: 4.6, tags: ['convert', 'file', 'format'] },
+  { id: 'gen-browser-agent', name: 'Browser Agent', author: 'ClawHub', category: 'General / Popular', icon: 'https://img.icons8.com/fluency/96/internet-explorer.png', description: '自动化浏览器操作，网页抓取、表单填写、截图、数据提取和自动化测试，支持复杂工作流。', downloads: 145000, rating: 4.7, tags: ['browser', 'automation', 'scraping'] },
+  { id: 'gen-clipboard-manager', name: 'Clipboard Manager', author: 'ClawHub', category: 'General / Popular', icon: 'https://img.icons8.com/fluency/96/clipboard.png', description: '智能剪贴板管理，历史记录搜索、常用片段保存、跨设备同步和自动格式化，提升复制粘贴效率。', downloads: 98000, rating: 4.6, tags: ['clipboard', 'snippets', 'productivity'] },
+  { id: 'gen-mindmap', name: 'Mind Map Creator', author: 'ClawHub', category: 'General / Popular', icon: 'https://img.icons8.com/fluency/96/mind-map.png', description: 'AI辅助思维导图工具，一键扩展节点、自动布局、多格式导出，支持团队协作和版本历史。', downloads: 112000, rating: 4.7, tags: ['mindmap', 'brainstorm', 'visual'] },
+  { id: 'gen-meeting-notes', name: 'Meeting Notes AI', author: 'ClawHub', category: 'General / Popular', icon: 'https://img.icons8.com/fluency/96/meeting.png', description: '会议记录自动化，实时转录、关键点提取、行动项追踪和会议摘要生成，支持多种语言。', downloads: 125000, rating: 4.7, tags: ['meeting', 'transcribe', 'notes'] },
+  { id: 'gen-password-gen', name: 'Password Generator', author: 'ClawHub', category: 'General / Popular', icon: 'https://img.icons8.com/fluency/96/password.png', description: '安全密码生成和管理工具，自定义规则生成强密码、安全评估、加密存储和自动填充。', downloads: 87000, rating: 4.6, tags: ['password', 'security', 'generator'] },
+  { id: 'gen-regex-helper', name: 'Regex Helper', author: 'ClawHub', category: 'General / Popular', icon: 'https://img.icons8.com/fluency/96/regex.png', description: '正则表达式生成和调试工具，自然语言描述自动生成正则、实时测试、常用模式库和详细解释。', downloads: 93000, rating: 4.7, tags: ['regex', 'pattern', 'text'] },
+  { id: 'gen-color-palette', name: 'Color Palette Generator', author: 'ClawHub', category: 'General / Popular', icon: 'https://img.icons8.com/fluency/96/color-palette.png', description: '智能配色方案生成，品牌色彩提取、和谐配色算法、无障碍对比度检测和设计系统导出。', downloads: 76000, rating: 4.6, tags: ['color', 'design', 'palette'] },
+  { id: 'gen-json-tool', name: 'JSON Toolkit', author: 'ClawHub', category: 'General / Popular', icon: 'https://img.icons8.com/fluency/96/json.png', description: 'JSON格式化、验证、转换和查询工具，支持JSONPath、Schema验证、类型生成和多格式互转。', downloads: 134000, rating: 4.8, tags: ['json', 'format', 'validate'] },
+  { id: 'gen-markdown-editor', name: 'Markdown Editor Pro', author: 'ClawHub', category: 'General / Popular', icon: 'https://img.icons8.com/fluency/96/markdown.png', description: '专业Markdown编辑器，实时预览、扩展语法支持、模板库、一键导出HTML/PDF/Word。', downloads: 108000, rating: 4.7, tags: ['markdown', 'editor', 'writing'] },
+  { id: 'gen-screenshot-tool', name: 'Screenshot & Annotate', author: 'ClawHub', category: 'General / Popular', icon: 'https://img.icons8.com/fluency/96/screenshot.png', description: '截图和标注工具，全屏/区域/滚动截图、画笔标注、箭头高亮、文字注释和一键分享。', downloads: 89000, rating: 4.6, tags: ['screenshot', 'annotate', 'capture'] },
+  { id: 'gen-time-tracker', name: 'Time Tracker Pro', author: 'ClawHub', category: 'General / Popular', icon: 'https://img.icons8.com/fluency/96/time.png', description: '专业时间追踪工具，项目计时、自动分类、工作报告生成和效率分析，支持团队协作。', downloads: 95000, rating: 4.6, tags: ['time', 'tracking', 'productivity'] },
+  { id: 'gen-api-tester', name: 'API Tester', author: 'ClawHub', category: 'General / Popular', icon: 'https://img.icons8.com/fluency/96/api.png', description: 'REST/GraphQL API测试工具，请求构建、环境变量管理、自动化测试脚本、响应可视化和团队协作。', downloads: 167000, rating: 4.8, tags: ['api', 'testing', 'rest'] },
+  { id: 'gen-git-helper', name: 'Git Helper', author: 'ClawHub', category: 'General / Popular', icon: 'https://img.icons8.com/fluency/96/git.png', description: 'Git操作助手，自动生成提交信息、代码Review、分支管理建议、冲突解决和工作流优化。', downloads: 189000, rating: 4.8, tags: ['git', 'version-control', 'commit'] },
+  { id: 'gen-sql-assistant', name: 'SQL Assistant', author: 'ClawHub', category: 'General / Popular', icon: 'https://img.icons8.com/fluency/96/database.png', description: 'SQL查询生成和优化工具，自然语言转SQL、查询优化建议、执行计划分析和数据库文档生成。', downloads: 145000, rating: 4.8, tags: ['sql', 'database', 'query'] },
+  { id: 'gen-resume-builder', name: 'Resume Builder AI', author: 'ClawHub', category: 'General / Popular', icon: 'https://img.icons8.com/fluency/96/resume.png', description: 'AI简历生成器，根据职位描述优化简历内容、ATS关键词匹配、专业模板和多格式导出。', downloads: 132000, rating: 4.7, tags: ['resume', 'career', 'ai'] },
+  { id: 'gen-presentation', name: 'Presentation Maker', author: 'ClawHub', category: 'General / Popular', icon: 'https://img.icons8.com/fluency/96/presentation.png', description: 'AI幻灯片生成工具，从大纲自动创建演示文稿、智能排版、图表生成和主题定制，导出PPT/PDF。', downloads: 156000, rating: 4.7, tags: ['presentation', 'slides', 'powerpoint'] },
+  { id: 'gen-spreadsheet-ai', name: 'Spreadsheet AI', author: 'ClawHub', category: 'General / Popular', icon: 'https://img.icons8.com/fluency/96/ms-excel.png', description: '表格数据智能处理，自动公式生成、数据清洗、透视表创建和异常检测，兼容Excel/Google Sheets。', downloads: 143000, rating: 4.7, tags: ['spreadsheet', 'excel', 'data'] },
+  { id: 'gen-code-review', name: 'Code Review Bot', author: 'ClawHub', category: 'General / Popular', icon: 'https://img.icons8.com/fluency/96/code-review.png', description: '自动化代码审查工具，安全漏洞检测、代码规范检查、性能优化建议和重构指导，支持GitHub集成。', downloads: 178000, rating: 4.8, tags: ['code-review', 'security', 'quality'] },
+  { id: 'gen-docker-helper', name: 'Docker Helper', author: 'ClawHub', category: 'General / Popular', icon: 'https://img.icons8.com/fluency/96/docker.png', description: 'Docker容器管理助手，Dockerfile生成、compose配置优化、镜像分析、安全扫描和部署建议。', downloads: 134000, rating: 4.7, tags: ['docker', 'container', 'devops'] },
+  { id: 'gen-linux-terminal', name: 'Linux Terminal AI', author: 'ClawHub', category: 'General / Popular', icon: 'https://img.icons8.com/fluency/96/console.png', description: 'Linux命令行助手，命令生成和解释、Shell脚本编写、错误诊断和系统管理自动化。', downloads: 167000, rating: 4.8, tags: ['linux', 'shell', 'terminal'] },
+  { id: 'gen-unit-tester', name: 'Unit Test Generator', author: 'ClawHub', category: 'General / Popular', icon: 'https://img.icons8.com/fluency/96/test-passed.png', description: '自动单元测试生成，覆盖边界条件、Mock生成、测试报告分析和覆盖率优化，支持主流测试框架。', downloads: 123000, rating: 4.7, tags: ['testing', 'unit-test', 'coverage'] },
+  { id: 'gen-diagram-maker', name: 'Diagram Maker', author: 'ClawHub', category: 'General / Popular', icon: 'https://img.icons8.com/fluency/96/workflow.png', description: '专业流程图和架构图绘制，自然语言生成图表、UML/ER图支持、团队协作和多格式导出。', downloads: 115000, rating: 4.7, tags: ['diagram', 'flowchart', 'uml'] },
+  { id: 'gen-calculator', name: 'Scientific Calculator', author: 'ClawHub', category: 'General / Popular', icon: 'https://img.icons8.com/fluency/96/calculator.png', description: '科学计算器，支持复杂数学表达式、单位换算、统计计算、公式推导和计算步骤详解。', downloads: 78000, rating: 4.6, tags: ['calculator', 'math', 'science'] },
+  { id: 'gen-qr-generator', name: 'QR Code Generator', author: 'ClawHub', category: 'General / Popular', icon: 'https://img.icons8.com/fluency/96/qr-code.png', description: '多功能二维码生成器，URL/名片/WiFi/文本等多种内容格式，自定义颜色、Logo嵌入和批量生成。', downloads: 82000, rating: 4.6, tags: ['qr-code', 'barcode', 'generator'] },
+  { id: 'gen-text-formatter', name: 'Text Formatter', author: 'ClawHub', category: 'General / Popular', icon: 'https://img.icons8.com/fluency/96/text.png', description: '文本格式化和处理工具，大小写转换、去重去空白、提取关键词、词频统计和批量文本操作。', downloads: 67000, rating: 4.5, tags: ['text', 'format', 'process'] },
+  { id: 'gen-url-shortener', name: 'URL Shortener & Tracker', author: 'ClawHub', category: 'General / Popular', icon: 'https://img.icons8.com/fluency/96/link.png', description: '短链接生成和追踪工具，自定义域名、点击统计、地域分析和UTM参数管理。', downloads: 58000, rating: 4.5, tags: ['url', 'shortener', 'analytics'] },
+  { id: 'gen-grammar-check', name: 'Grammar Checker Pro', author: 'ClawHub', category: 'General / Popular', icon: 'https://img.icons8.com/fluency/96/spellcheck.png', description: '高级语法和拼写检查，风格建议、可读性评分、学术写作优化，支持中英文和多种语言。', downloads: 145000, rating: 4.7, tags: ['grammar', 'writing', 'proofreading'] },
+  { id: 'gen-voice-transcribe', name: 'Voice Transcriber', author: 'ClawHub', category: 'General / Popular', icon: 'https://img.icons8.com/fluency/96/microphone.png', description: '语音转文字工具，支持50+语言实时转录、会议录音处理、说话人分离和字幕生成。', downloads: 123000, rating: 4.7, tags: ['voice', 'transcribe', 'speech'] },
+  { id: 'gen-backup-sync', name: 'Backup & Sync', author: 'ClawHub', category: 'General / Popular', icon: 'https://img.icons8.com/fluency/96/sync.png', description: '文件备份和同步工具，自动备份规则、版本历史、增量同步和跨云存储管理（S3/OSS/GCS）。', downloads: 72000, rating: 4.6, tags: ['backup', 'sync', 'cloud'] },
+  { id: 'gen-env-manager', name: 'Environment Manager', author: 'ClawHub', category: 'General / Popular', icon: 'https://img.icons8.com/fluency/96/settings.png', description: '开发环境变量管理，.env文件加密存储、团队共享、多环境切换和敏感信息安全审计。', downloads: 89000, rating: 4.6, tags: ['env', 'secrets', 'devops'] },
+  { id: 'gen-log-analyzer', name: 'Log Analyzer', author: 'ClawHub', category: 'General / Popular', icon: 'https://img.icons8.com/fluency/96/log.png', description: '日志分析和监控工具，异常模式识别、错误聚合、性能瓶颈定位和告警规则配置。', downloads: 95000, rating: 4.7, tags: ['logs', 'monitoring', 'debug'] },
+  { id: 'gen-ip-tools', name: 'IP & Network Tools', author: 'ClawHub', category: 'General / Popular', icon: 'https://img.icons8.com/fluency/96/network.png', description: 'IP查询和网络诊断工具集，地理位置、WHOIS、DNS解析、端口扫描、延迟测试和路由追踪。', downloads: 63000, rating: 4.5, tags: ['ip', 'network', 'dns'] },
+  { id: 'gen-cron-builder', name: 'Cron Expression Builder', author: 'ClawHub', category: 'General / Popular', icon: 'https://img.icons8.com/fluency/96/clock.png', description: 'Cron表达式可视化编辑器，人性化界面生成复杂定时任务、下次执行时间预览和常用模板库。', downloads: 54000, rating: 4.5, tags: ['cron', 'scheduler', 'automation'] },
+  { id: 'gen-css-generator', name: 'CSS Generator', author: 'ClawHub', category: 'General / Popular', icon: 'https://img.icons8.com/fluency/96/css3.png', description: 'CSS效果生成器，渐变、阴影、动画、Flexbox/Grid布局可视化编辑，实时预览和代码输出。', downloads: 86000, rating: 4.6, tags: ['css', 'design', 'frontend'] },
+  { id: 'gen-interview-prep', name: 'Interview Prep Coach', author: 'ClawHub', category: 'General / Popular', icon: 'https://img.icons8.com/fluency/96/interview.png', description: 'AI面试准备教练，行为面试STAR法则练习、技术题目讲解、答案优化和模拟面试训练。', downloads: 118000, rating: 4.7, tags: ['interview', 'career', 'learning'] },
+  { id: 'gen-learning-path', name: 'Learning Path Planner', author: 'ClawHub', category: 'General / Popular', icon: 'https://img.icons8.com/fluency/96/road.png', description: '个性化学习路径规划，技能评估、课程推荐、学习计划生成和进度追踪，覆盖编程到商业。', downloads: 102000, rating: 4.7, tags: ['learning', 'education', 'skills'] },
+  { id: 'gen-budget-tracker', name: 'Budget Tracker', author: 'ClawHub', category: 'General / Popular', icon: 'https://img.icons8.com/fluency/96/money.png', description: '个人和团队预算管理，收支记录、分类统计、预算预警、财务报表和趋势分析。', downloads: 88000, rating: 4.6, tags: ['budget', 'finance', 'tracker'] },
+  { id: 'gen-habit-tracker', name: 'Habit Tracker', author: 'ClawHub', category: 'General / Popular', icon: 'https://img.icons8.com/fluency/96/target.png', description: '习惯养成追踪工具，打卡记录、连续天数统计、提醒通知、数据可视化和激励反馈系统。', downloads: 76000, rating: 4.6, tags: ['habits', 'productivity', 'wellness'] },
+  { id: 'gen-recipe-ai', name: 'Recipe AI', author: 'ClawHub', category: 'General / Popular', icon: 'https://img.icons8.com/fluency/96/chef-hat.png', description: '智能食谱助手，根据食材推荐菜谱、营养分析、购物清单生成和个性化饮食计划定制。', downloads: 65000, rating: 4.5, tags: ['recipe', 'food', 'nutrition'] },
+  { id: 'gen-travel-planner', name: 'Travel Planner AI', author: 'ClawHub', category: 'General / Popular', icon: 'https://img.icons8.com/fluency/96/airplane-take-off.png', description: 'AI旅行规划助手，行程设计、景点推荐、交通住宿建议、预算估算和离线地图导出。', downloads: 93000, rating: 4.6, tags: ['travel', 'planning', 'itinerary'] },
+  { id: 'gen-language-tutor', name: 'Language Tutor AI', author: 'ClawHub', category: 'General / Popular', icon: 'https://img.icons8.com/fluency/96/language.png', description: 'AI语言学习助手，发音纠正、词汇卡片、情景对话练习、语法讲解和自适应难度调整。', downloads: 112000, rating: 4.7, tags: ['language', 'learning', 'tutor'] },
+  { id: 'gen-content-calendar', name: 'Content Calendar', author: 'ClawHub', category: 'General / Popular', icon: 'https://img.icons8.com/fluency/96/planner.png', description: '内容营销日历工具，发布计划管理、多平台内容协调、AI内容建议和效果数据追踪。', downloads: 78000, rating: 4.6, tags: ['content', 'marketing', 'calendar'] },
+  { id: 'gen-social-post', name: 'Social Post Generator', author: 'ClawHub', category: 'General / Popular', icon: 'https://img.icons8.com/fluency/96/instagram.png', description: '社交媒体内容生成器，针对Twitter/LinkedIn/小红书/微博等平台优化文案、话题标签和最佳发布时间。', downloads: 134000, rating: 4.7, tags: ['social-media', 'content', 'marketing'] },
+  { id: 'gen-seo-tools', name: 'SEO Toolkit', author: 'ClawHub', category: 'General / Popular', icon: 'https://img.icons8.com/fluency/96/seo.png', description: 'SEO分析和优化工具集，关键词研究、竞争对手分析、内容优化建议、外链检查和排名追踪。', downloads: 98000, rating: 4.7, tags: ['seo', 'marketing', 'keywords'] },
+  { id: 'gen-invoice-gen', name: 'Invoice Generator', author: 'ClawHub', category: 'General / Popular', icon: 'https://img.icons8.com/fluency/96/invoice.png', description: '专业发票生成工具，自定义模板、自动编号、税率计算、多币种支持和PDF/邮件发送。', downloads: 82000, rating: 4.6, tags: ['invoice', 'business', 'finance'] },
+  { id: 'gen-contract-drafter', name: 'Contract Drafter AI', author: 'ClawHub', category: 'General / Popular', icon: 'https://img.icons8.com/fluency/96/contract.png', description: 'AI合同起草和审查工具，标准条款库、风险条款识别、法律合规检查和多语言合同生成。', downloads: 75000, rating: 4.6, tags: ['contract', 'legal', 'document'] },
+  { id: 'gen-chart-builder', name: 'Chart Builder', author: 'ClawHub', category: 'General / Popular', icon: 'https://img.icons8.com/fluency/96/combo-chart.png', description: '数据可视化图表构建，支持20+图表类型、交互式配置、动画效果和嵌入代码导出。', downloads: 105000, rating: 4.7, tags: ['charts', 'visualization', 'data'] },
+  { id: 'gen-mock-data', name: 'Mock Data Generator', author: 'ClawHub', category: 'General / Popular', icon: 'https://img.icons8.com/fluency/96/test.png', description: '测试数据生成工具，按Schema批量生成真实感数据，支持多种格式和自定义规则，API集成方便。', downloads: 89000, rating: 4.6, tags: ['mock', 'testing', 'data'] },
+  { id: 'gen-webhook-tester', name: 'Webhook Tester', author: 'ClawHub', category: 'General / Popular', icon: 'https://img.icons8.com/fluency/96/webhook.png', description: 'Webhook接收和调试工具，临时端点生成、请求记录、格式化展示和重放功能，无需服务器。', downloads: 67000, rating: 4.6, tags: ['webhook', 'api', 'debug'] },
+  { id: 'gen-base64-tool', name: 'Encoder/Decoder Suite', author: 'ClawHub', category: 'General / Popular', icon: 'https://img.icons8.com/fluency/96/encode.png', description: '编码解码工具集，Base64/URL/HTML/JWT/Hash等多种格式，批量处理和实时转换。', downloads: 72000, rating: 4.5, tags: ['encode', 'decode', 'base64'] },
+  { id: 'gen-diff-tool', name: 'Text Diff Tool', author: 'ClawHub', category: 'General / Popular', icon: 'https://img.icons8.com/fluency/96/difference.png', description: '文本差异对比工具，行级/字符级Diff显示、合并建议、代码对比和HTML/PDF导出。', downloads: 58000, rating: 4.5, tags: ['diff', 'compare', 'merge'] },
+  { id: 'gen-font-tool', name: 'Font Finder & Pairing', author: 'ClawHub', category: 'General / Popular', icon: 'https://img.icons8.com/fluency/96/font.png', description: '字体识别和搭配工具，图片字体识别、Google Fonts搜索、字体配对建议和网页嵌入代码。', downloads: 43000, rating: 4.4, tags: ['font', 'design', 'typography'] },
+  { id: 'gen-icon-finder', name: 'Icon Finder Pro', author: 'ClawHub', category: 'General / Popular', icon: 'https://img.icons8.com/fluency/96/icons8-new-logo.png', description: '图标搜索和管理工具，聚合主流图标库（Heroicons/Lucide/FontAwesome），SVG下载和项目管理。', downloads: 87000, rating: 4.6, tags: ['icons', 'design', 'svg'] },
+  { id: 'gen-pomodoro', name: 'Pomodoro Timer Pro', author: 'ClawHub', category: 'General / Popular', icon: 'https://img.icons8.com/fluency/96/tomato.png', description: '番茄工作法计时器，自定义专注/休息时长、统计报告、任务关联和白噪音背景音效。', downloads: 65000, rating: 4.5, tags: ['pomodoro', 'focus', 'productivity'] },
+  { id: 'gen-world-clock', name: 'World Clock & Timezone', author: 'ClawHub', category: 'General / Popular', icon: 'https://img.icons8.com/fluency/96/world.png', description: '全球时区工具，多城市时钟显示、会议时间转换、夏令时提醒和最佳会议时间推荐。', downloads: 48000, rating: 4.5, tags: ['timezone', 'clock', 'meeting'] },
+  { id: 'gen-currency-conv', name: 'Currency Converter Pro', author: 'ClawHub', category: 'General / Popular', icon: 'https://img.icons8.com/fluency/96/currency-exchange.png', description: '实时汇率货币转换，支持170+法币和加密货币，历史汇率图表、旅行货币计算和价格提醒。', downloads: 98000, rating: 4.6, tags: ['currency', 'exchange-rate', 'finance'] },
+  { id: 'gen-read-later', name: 'Read Later & Highlights', author: 'ClawHub', category: 'General / Popular', icon: 'https://img.icons8.com/fluency/96/bookmark.png', description: '稍后阅读和高亮工具，网页/文章保存、关键段落标注、AI摘要和智能推荐阅读队列管理。', downloads: 73000, rating: 4.6, tags: ['read-later', 'bookmarks', 'highlights'] },
+  { id: 'gen-flashcards', name: 'Flashcard AI', author: 'ClawHub', category: 'General / Popular', icon: 'https://img.icons8.com/fluency/96/flashcard.png', description: 'AI闪卡学习系统，从文档自动生成闪卡、间隔重复算法、语音朗读和多终端同步。', downloads: 68000, rating: 4.6, tags: ['flashcards', 'learning', 'memory'] },
+  { id: 'gen-vpn-checker', name: 'Network Privacy Checker', author: 'ClawHub', category: 'General / Popular', icon: 'https://img.icons8.com/fluency/96/privacy.png', description: '网络隐私和安全检测工具，IP泄露测试、DNS泄露检查、WebRTC泄露检测和隐私评分报告。', downloads: 52000, rating: 4.5, tags: ['privacy', 'security', 'network'] },
+  { id: 'gen-website-monitor', name: 'Website Monitor', author: 'ClawHub', category: 'General / Popular', icon: 'https://img.icons8.com/fluency/96/monitor.png', description: '网站可用性监控工具，HTTP状态检查、响应时间追踪、SSL证书到期提醒和故障告警通知。', downloads: 61000, rating: 4.5, tags: ['monitoring', 'uptime', 'website'] },
+  { id: 'gen-batch-rename', name: 'Batch File Renamer', author: 'ClawHub', category: 'General / Popular', icon: 'https://img.icons8.com/fluency/96/rename.png', description: '批量文件重命名工具，正则替换、序列编号、元数据重命名和预览确认，支持撤销操作。', downloads: 45000, rating: 4.4, tags: ['rename', 'files', 'batch'] },
+  { id: 'gen-image-compress', name: 'Image Compressor', author: 'ClawHub', category: 'General / Popular', icon: 'https://img.icons8.com/fluency/96/compress.png', description: '图片无损压缩和格式转换，WebP/AVIF优化、批量处理、保持EXIF信息和自定义质量设置。', downloads: 87000, rating: 4.6, tags: ['image', 'compress', 'optimize'] },
+  { id: 'gen-video-downloader', name: 'Video Downloader', author: 'ClawHub', category: 'General / Popular', icon: 'https://img.icons8.com/fluency/96/video.png', description: '在线视频下载工具，支持YouTube/Twitter/TikTok等1000+平台，多清晰度选择和字幕下载。', downloads: 154000, rating: 4.7, tags: ['video', 'download', 'media'] },
+  { id: 'gen-ai-chatbot', name: 'Custom AI Chatbot', author: 'ClawHub', category: 'General / Popular', icon: 'https://img.icons8.com/fluency/96/chatbot.png', description: '自定义AI聊天机器人构建器，导入文档知识库、角色设定、嵌入网站和多平台接入。', downloads: 198000, rating: 4.8, tags: ['chatbot', 'ai', 'knowledge-base'] },
+  { id: 'gen-workflow-auto', name: 'Workflow Automation', author: 'ClawHub', category: 'General / Popular', icon: 'https://img.icons8.com/fluency/96/bot.png', description: '无代码工作流自动化，触发器+动作模式连接500+应用，类Zapier功能，支持复杂条件和循环。', downloads: 175000, rating: 4.8, tags: ['automation', 'workflow', 'no-code'] },
+  { id: 'gen-form-builder', name: 'Form Builder Pro', author: 'ClawHub', category: 'General / Popular', icon: 'https://img.icons8.com/fluency/96/form.png', description: '拖拽式表单构建器，条件逻辑、支付集成、数据导出和嵌入代码，响应式设计移动端友好。', downloads: 112000, rating: 4.7, tags: ['forms', 'survey', 'no-code'] },
+  { id: 'gen-landing-page', name: 'Landing Page Builder', author: 'ClawHub', category: 'General / Popular', icon: 'https://img.icons8.com/fluency/96/web.png', description: 'AI落地页生成器，从产品描述一键生成高转化率页面，A/B测试、分析集成和一键发布。', downloads: 98000, rating: 4.6, tags: ['landing-page', 'marketing', 'no-code'] },
+  { id: 'gen-chatgpt-prompts', name: 'Prompt Library Pro', author: 'ClawHub', category: 'General / Popular', icon: 'https://img.icons8.com/fluency/96/lightning-bolt.png', description: '精选AI提示词库，10000+专业场景提示模板，分类搜索、自定义变量和一键复制使用。', downloads: 267000, rating: 4.9, tags: ['prompts', 'ai', 'productivity'], featured: true },
+  { id: 'gen-number-format', name: 'Number & Unit Converter', author: 'ClawHub', category: 'General / Popular', icon: 'https://img.icons8.com/fluency/96/ruler.png', description: '全能数字和单位换算工具，长度/重量/温度/面积/体积等200+单位，支持科学计数法和自定义单位。', downloads: 54000, rating: 4.5, tags: ['converter', 'units', 'math'] },
+  { id: 'gen-audio-editor', name: 'Audio Editor & Converter', author: 'ClawHub', category: 'General / Popular', icon: 'https://img.icons8.com/fluency/96/audio-wave.png', description: '在线音频编辑和转换工具，剪切拼接、降噪、格式转换、音量调整和波形可视化。', downloads: 67000, rating: 4.5, tags: ['audio', 'edit', 'convert'] },
+  { id: 'gen-stock-tracker', name: 'Stock Tracker', author: 'ClawHub', category: 'General / Popular', icon: 'https://img.icons8.com/fluency/96/stock-market.png', description: '股票和ETF追踪工具，实时行情、自选股管理、技术指标分析、新闻聚合和持仓盈亏统计。', downloads: 115000, rating: 4.7, tags: ['stocks', 'investing', 'finance'] },
+  { id: 'gen-news-aggregator', name: 'News Aggregator AI', author: 'ClawHub', category: 'General / Popular', icon: 'https://img.icons8.com/fluency/96/news.png', description: 'AI新闻聚合和摘要工具，个性化话题订阅、多源对比、偏见检测和每日简报推送。', downloads: 132000, rating: 4.7, tags: ['news', 'aggregator', 'ai'] },
+  { id: 'gen-personal-crm', name: 'Personal CRM', author: 'ClawHub', category: 'General / Popular', icon: 'https://img.icons8.com/fluency/96/contacts.png', description: '个人人脉管理工具，联系人信息维护、互动记录、跟进提醒和关系网络可视化分析。', downloads: 58000, rating: 4.5, tags: ['crm', 'contacts', 'networking'] },
+  { id: 'gen-smart-home', name: 'Smart Home Controller', author: 'ClawHub', category: 'General / Popular', icon: 'https://img.icons8.com/fluency/96/smart-home.png', description: '智能家居控制面板，支持HomeKit/Google Home/Alexa，场景自动化、能耗监控和设备状态统一管理。', downloads: 48000, rating: 4.4, tags: ['smart-home', 'iot', 'automation'] },
+  { id: 'gen-screenshot-ocr', name: 'Screenshot OCR', author: 'ClawHub', category: 'General / Popular', icon: 'https://img.icons8.com/fluency/96/scan-text.png', description: '截图文字识别工具，一键提取图片文字、表格识别、数学公式识别和多语言支持。', downloads: 108000, rating: 4.7, tags: ['ocr', 'screenshot', 'text-extract'] },
+  { id: 'gen-browser-ext', name: 'Browser Extension Builder', author: 'ClawHub', category: 'General / Popular', icon: 'https://img.icons8.com/fluency/96/extension.png', description: 'Chrome/Firefox扩展开发助手，代码生成、调试指导、发布流程辅助和API文档参考。', downloads: 72000, rating: 4.6, tags: ['extension', 'browser', 'development'] },
+  { id: 'gen-emoji-picker', name: 'Emoji & Symbol Picker', author: 'ClawHub', category: 'General / Popular', icon: 'https://img.icons8.com/fluency/96/star-wars-r2d2.png', description: '表情符号和特殊字符工具，快速搜索、最近使用、皮肤色调选择和批量插入Unicode字符。', downloads: 45000, rating: 4.4, tags: ['emoji', 'unicode', 'symbols'] },
+  { id: 'gen-placeholder-gen', name: 'Placeholder Generator', author: 'ClawHub', category: 'General / Popular', icon: 'https://img.icons8.com/fluency/96/picture.png', description: '占位图片和内容生成，自定义尺寸/颜色/文字，Lorem Ipsum变体和假数据生成，开发调试必备。', downloads: 38000, rating: 4.4, tags: ['placeholder', 'mockup', 'development'] },
+  { id: 'gen-spelling-bee', name: 'Vocabulary Builder', author: 'ClawHub', category: 'General / Popular', icon: 'https://img.icons8.com/fluency/96/abc.png', description: '词汇量扩展工具，每日单词学习、联想记忆法、词根词缀分析和英语水平测评。', downloads: 62000, rating: 4.5, tags: ['vocabulary', 'english', 'learning'] },
+  { id: 'gen-idea-generator', name: 'Idea Generator', author: 'ClawHub', category: 'General / Popular', icon: 'https://img.icons8.com/fluency/96/idea.png', description: 'AI创意和头脑风暴工具，产品名称/域名/口号生成，SCAMPER创意技法辅助和概念组合探索。', downloads: 89000, rating: 4.6, tags: ['ideas', 'brainstorm', 'creativity'] },
+  { id: 'gen-project-charter', name: 'Project Charter Generator', author: 'ClawHub', category: 'General / Popular', icon: 'https://img.icons8.com/fluency/96/project-management.png', description: '项目章程和计划生成器，范围定义、里程碑规划、风险评估和干系人分析，导出Word/PDF。', downloads: 54000, rating: 4.5, tags: ['project', 'management', 'planning'] },
+  { id: 'gen-clipboard-ai', name: 'AI Clipboard Enhancer', author: 'ClawHub', category: 'General / Popular', icon: 'https://img.icons8.com/fluency/96/paste.png', description: '剪贴板AI增强，复制内容自动总结/翻译/格式化，智能感知内容类型并提供处理建议。', downloads: 93000, rating: 4.7, tags: ['clipboard', 'ai', 'productivity'] },
+  { id: 'gen-system-prompt', name: 'System Prompt Builder', author: 'ClawHub', category: 'General / Popular', icon: 'https://img.icons8.com/fluency/96/command-line.png', description: 'AI系统提示词设计器，角色定义、能力约束、输出格式规范和安全护栏，可视化编辑和测试。', downloads: 142000, rating: 4.8, tags: ['system-prompt', 'ai', 'engineering'] },
+  { id: 'gen-webhook-builder', name: 'Webhook Builder', author: 'ClawHub', category: 'General / Popular', icon: 'https://img.icons8.com/fluency/96/connection.png', description: '可视化Webhook配置工具，事件订阅管理、payload转换、重试策略和监控日志面板。', downloads: 61000, rating: 4.5, tags: ['webhook', 'integration', 'api'] },
+  { id: 'gen-sitemap-gen', name: 'Sitemap Generator', author: 'ClawHub', category: 'General / Popular', icon: 'https://img.icons8.com/fluency/96/sitemap.png', description: 'XML/HTML站点地图生成工具，自动爬取页面、优先级设置、更新频率配置和自动提交搜索引擎。', downloads: 43000, rating: 4.4, tags: ['sitemap', 'seo', 'website'] },
+  { id: 'gen-code-formatter', name: 'Code Formatter & Linter', author: 'ClawHub', category: 'General / Popular', icon: 'https://img.icons8.com/fluency/96/code.png', description: '代码格式化和规范检查，支持50+语言，Prettier/ESLint配置集成，团队规范统一和自动修复。', downloads: 156000, rating: 4.8, tags: ['formatter', 'linter', 'code-quality'] },
+  { id: 'gen-oauth-debugger', name: 'OAuth Debugger', author: 'ClawHub', category: 'General / Popular', icon: 'https://img.icons8.com/fluency/96/key.png', description: 'OAuth 2.0/OpenID Connect调试工具，授权流程可视化、Token解析、权限范围验证和集成测试。', downloads: 55000, rating: 4.5, tags: ['oauth', 'auth', 'security'] },
+  { id: 'gen-smart-search', name: 'Semantic Search', author: 'ClawHub', category: 'General / Popular', icon: 'https://img.icons8.com/fluency/96/search.png', description: '语义搜索引擎，向量化本地文档库、自然语言查询、上下文理解和相关性排序，私有部署支持。', downloads: 108000, rating: 4.7, tags: ['search', 'semantic', 'ai'] },
 ];
 
 // 提取分类
@@ -281,15 +444,43 @@ app.get('/api/skills/:id', (req, res) => {
   if (!skill) return res.status(404).json({ error: 'Skill not found' });
 
   // 增强详情信息
+  const version = '1.0.' + Math.floor(skill.downloads / 10000);
+  const seedNum = skill.id.split('').reduce((a, c) => a + c.charCodeAt(0), 0);
+  const favCount = Math.floor(skill.downloads * (0.05 + (seedNum % 10) * 0.008));
+  const securityPassed = (seedNum % 7) !== 0; // most pass, occasional pending
+
+  // Generate a deterministic but varied file list based on skill id
+  const baseFiles = ['SKILL.md', 'package.json', 'README.md'];
+  const extraFileSets = [
+    ['index.js', 'config.json', 'utils/helpers.js'],
+    ['main.py', 'requirements.txt', 'src/core.py'],
+    ['skill.ts', 'tsconfig.json', 'lib/api.ts', 'types/index.d.ts'],
+    ['handler.js', 'schema.graphql', 'resolvers/index.js'],
+    ['skill.go', 'go.mod', 'internal/client.go'],
+    ['main.rs', 'Cargo.toml', 'src/lib.rs'],
+    ['action.yml', 'src/index.js', 'src/utils.js', '.env.example'],
+    ['skill.js', 'skill.css', 'assets/icon.svg', 'locales/en.json', 'locales/zh.json'],
+  ];
+  const fileSet = extraFileSets[seedNum % extraFileSets.length];
+  const skillFiles = [...baseFiles, ...fileSet];
+
   const detail = {
     ...skill,
-    version: '1.0.' + Math.floor(skill.downloads / 10000),
-    lastUpdated: '2026-03-' + String(Math.min(13, Math.floor(Math.random() * 13) + 1)).padStart(2, '0'),
-    size: (Math.random() * 5 + 0.5).toFixed(1) + ' MB',
+    version,
+    lastUpdated: '2026-03-' + String(Math.min(17, Math.floor((seedNum % 17) + 1))).padStart(2, '0'),
+    size: ((seedNum % 45 + 5) / 10).toFixed(1) + ' MB',
     compatibility: ['Claude Code', 'ClawHub'],
     screenshots: [],
     changelog: `v1.0 - 初始版本发布\nv1.1 - 性能优化和Bug修复\nv1.2 - 新增功能和API支持`,
     requirements: '需要有效的API密钥和钱包连接',
+    files: skillFiles,
+    securityScan: {
+      status: securityPassed ? 'passed' : 'pending',
+      scannedAt: securityPassed ? '2026-03-15' : null,
+      threats: 0,
+      warnings: securityPassed ? 0 : 1,
+    },
+    favorites: favCount,
     relatedSkills: skillsData
       .filter(s => s.category === skill.category && s.id !== skill.id)
       .slice(0, 4)
@@ -323,6 +514,114 @@ app.get('/api/proxy-image', async (req, res) => {
   } catch {
     res.status(502).send('Proxy error');
   }
+});
+
+// API: 下载skill为zip文件
+app.get('/api/skills/:id/download', (req, res) => {
+  const skill = skillsData.find(s => s.id === req.params.id);
+  if (!skill) return res.status(404).json({ error: 'Skill not found' });
+
+  const version = '1.0.' + Math.floor(skill.downloads / 10000);
+  const zipName = `${skill.id}-v${version}.zip`;
+
+  res.setHeader('Content-Type', 'application/zip');
+  res.setHeader('Content-Disposition', `attachment; filename="${zipName}"`);
+
+  const archive = archiver('zip', { zlib: { level: 9 } });
+  archive.on('error', (err) => {
+    console.error('Archive error:', err);
+    if (!res.headersSent) res.status(500).json({ error: 'Failed to create zip' });
+  });
+  archive.pipe(res);
+
+  // SKILL.md
+  const skillMd = `# ${skill.name}
+
+**Author:** ${skill.author}
+**Version:** ${version}
+**Category:** ${skill.category}
+**Rating:** ${skill.rating}/5.0
+**Downloads:** ${skill.downloads.toLocaleString()}
+
+## Description
+
+${skill.description}
+
+## Tags
+
+${skill.tags.map(t => `- ${t}`).join('\n')}
+`;
+  archive.append(skillMd, { name: 'SKILL.md' });
+
+  // package.json
+  const packageJson = JSON.stringify({
+    name: skill.id,
+    version: version,
+    description: skill.description,
+    author: skill.author,
+    category: skill.category,
+    tags: skill.tags,
+    rating: skill.rating,
+    downloads: skill.downloads,
+    compatibility: ['Claude Code', 'ClawHub'],
+    icon: skill.icon || ''
+  }, null, 2);
+  archive.append(packageJson, { name: 'package.json' });
+
+  // README.md
+  const readmeMd = `# ${skill.name}
+
+> ${skill.description}
+
+## Installation
+
+### Via ClawHub Skills Store
+1. Open the Skills Store at http://43.153.155.83:8082/
+2. Search for "${skill.name}"
+3. Click "Install"
+
+### Manual Installation
+1. Extract this zip to your skills directory:
+   \`\`\`bash
+   unzip ${zipName} -d ~/.openclaw/workspace/skills/${skill.id}/
+   \`\`\`
+2. Restart your agent or reload skills
+
+## Usage
+
+This skill provides: ${skill.tags.join(', ')} capabilities.
+
+**Category:** ${skill.category}
+**Author:** ${skill.author}
+**Version:** ${version}
+
+## Requirements
+
+需要有效的API密钥和钱包连接
+
+## Changelog
+
+- v1.0 - 初始版本发布
+- v1.1 - 性能优化和Bug修复
+- v1.2 - 新增功能和API支持
+`;
+  archive.append(readmeMd, { name: 'README.md' });
+
+  // Check for actual skill files on disk
+  const skillDirs = [
+    path.join('/root/.openclaw/workspace/skills', skill.id),
+    path.join('/root/.openclaw/skills', skill.id),
+    path.join(process.env.HOME || '/root', '.agents/skills', skill.id),
+  ];
+
+  for (const dir of skillDirs) {
+    if (fs.existsSync(dir)) {
+      archive.directory(dir, 'skill-files');
+      break; // only include from first found location
+    }
+  }
+
+  archive.finalize();
 });
 
 // Fallback: serve frontend

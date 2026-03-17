@@ -423,7 +423,7 @@ html, body {
   color: var(--text-muted);
 }
 .skill-card .sc-rating { color: var(--orange); }
-.skill-card .sc-actions { flex-shrink: 0; }
+.skill-card .sc-actions { flex-shrink: 0; display: flex; gap: 6px; align-items: center; }
 
 /* Install Button */
 .btn-install {
@@ -610,6 +610,181 @@ html, body {
   background: transparent;
   color: var(--green);
   border-color: var(--green);
+}
+
+/* Download Buttons */
+.btn-download {
+  padding: 5px 8px;
+  border-radius: var(--radius-sm);
+  font-size: 12px;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: all var(--transition);
+  display: flex;
+  align-items: center;
+}
+.btn-download svg {
+  width: 14px;
+  height: 14px;
+}
+.btn-download:hover {
+  background: var(--accent);
+  color: #fff;
+  border-color: var(--accent);
+}
+.btn-detail-download {
+  padding: 10px 16px;
+  border-radius: var(--radius-md);
+  font-size: 14px;
+  font-weight: 600;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all var(--transition);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+.btn-detail-download svg {
+  width: 16px;
+  height: 16px;
+}
+.btn-detail-download:hover {
+  background: var(--accent);
+  color: #fff;
+  border-color: var(--accent);
+}
+
+/* ==========================================
+   Detail Stats Row
+   ========================================== */
+.detail-stats-row {
+  display: flex;
+  gap: 16px;
+  margin-top: 10px;
+}
+.detail-stat-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 8px 12px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  min-width: 70px;
+}
+.detail-stat-num {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.detail-stat-num svg {
+  width: 14px;
+  height: 14px;
+}
+.detail-stat-lbl {
+  font-size: 10px;
+  color: var(--text-tertiary);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.detail-version {
+  font-size: 11px;
+  color: var(--text-tertiary);
+  font-weight: 400;
+  margin-left: 6px;
+}
+
+/* ==========================================
+   Security Badge
+   ========================================== */
+.sec-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  font-weight: 500;
+  padding: 2px 8px;
+  border-radius: 4px;
+  vertical-align: middle;
+  margin-left: 8px;
+}
+.sec-badge svg {
+  width: 12px;
+  height: 12px;
+}
+.sec-verified {
+  background: var(--green-subtle);
+  color: var(--green);
+  border: 1px solid rgba(34,197,94,.2);
+}
+.sec-pending {
+  background: rgba(245,158,11,.1);
+  color: var(--orange);
+  border: 1px solid rgba(245,158,11,.2);
+}
+
+/* ==========================================
+   Detail Meta Grid
+   ========================================== */
+.detail-meta-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-bottom: 16px;
+  padding: 12px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+}
+.detail-meta-item {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.detail-meta-label {
+  font-size: 10px;
+  color: var(--text-tertiary);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-weight: 600;
+}
+.detail-meta-value {
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+/* ==========================================
+   File Tree
+   ========================================== */
+.detail-file-tree {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 10px 14px;
+  font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+  font-size: 12px;
+}
+.file-tree-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 3px 0;
+  color: var(--text-secondary);
+}
+.file-tree-item svg {
+  width: 14px;
+  height: 14px;
+  color: var(--text-muted);
+  flex-shrink: 0;
 }
 
 .related-grid { display: grid; grid-template-columns: repeat(2,1fr); gap: 6px; }
@@ -812,6 +987,9 @@ html, body {
   .profile-panel { width: 100vw; max-width: 100vw; }
   .installed-grid { grid-template-columns: repeat(4,1fr); }
   .related-grid { grid-template-columns: 1fr; }
+  .detail-stats-row { flex-wrap: wrap; gap: 8px; }
+  .detail-stat-box { min-width: 60px; padding: 6px 8px; }
+  .detail-meta-grid { grid-template-columns: 1fr; }
   .header-left { cursor: pointer; }
   .featured-card { min-width: 220px; }
   .skill-card { padding: 12px; }
@@ -827,4 +1005,28 @@ html, body {
    ========================================== */
 @media(min-width:1200px) {
   .featured-card { min-width: 280px; }
+}
+
+/* Download spinner */
+.dl-spinner {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  border: 2px solid rgba(255,255,255,0.3);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: dl-spin 0.6s linear infinite;
+  vertical-align: middle;
+}
+.dl-progress-wrap {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.btn-install .dl-spinner {
+  border-color: rgba(99,102,241,0.3);
+  border-top-color: var(--accent);
+}
+@keyframes dl-spin {
+  to { transform: rotate(360deg); }
 }
